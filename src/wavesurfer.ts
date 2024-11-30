@@ -609,6 +609,14 @@ class WaveSurfer extends Player<WaveSurferEvents> {
     this.renderer.destroy()
     super.destroy()
   }
+
+  /** Set the volume for a specific channel. */
+  public setChannelVolume(index: number, volume: number) {
+    const media = this.getMediaElement()
+    if (media instanceof WebAudioPlayer) {
+      media.setChannelVolume(index, volume)
+    }
+  }
 }
 
 export default WaveSurfer
