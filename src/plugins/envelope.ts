@@ -373,7 +373,19 @@ class EnvelopePlugin extends BasePlugin<EnvelopePluginEvents, EnvelopePluginOpti
    */
   public setVolume(floatValue: number) {
     this.volume = floatValue
-    this.wavesurfer?.setVolume(floatValue)
+    if (this.wavesurfer) {
+      const channels = this.wavesurfer.getDecodedData()?.numberOfChannels || 1
+      for (let i = 0; i < channels; i++) {
+        this.setChannelVolume(i, floatValue)
+      }
+    }
+  }
+
+  /**
+   * Set the volume for a specific channel.
+   */
+  public setChannelVolume(index: number, volume: number) {
+    this.wavesurfer?.setChannelVolume(index, volume)
   }
 
   /** Called by wavesurfer, don't call manually */

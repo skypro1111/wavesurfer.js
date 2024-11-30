@@ -687,6 +687,11 @@ class RegionsPlugin extends BasePlugin<RegionsPluginEvents, RegionsPluginOptions
     super.destroy()
     this.regionsContainer.remove()
   }
+
+  /** Set the volume for a specific channel. */
+  public setChannelVolume(index: number, volume: number) {
+    this.wavesurfer?.setChannelVolume(index, volume)
+  }
 }
 
 export default RegionsPlugin

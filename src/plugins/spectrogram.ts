@@ -511,6 +511,9 @@ class SpectrogramPlugin extends BasePlugin<SpectrogramPluginEvents, SpectrogramP
           height, // destination width, height
         )
       })
+
+      // Set volume for each channel
+      this.setChannelVolume(c, 1) // Set volume to 1 for each channel
     }
 
     if (this.options.labels) {
@@ -750,6 +753,11 @@ class SpectrogramPlugin extends BasePlugin<SpectrogramPluginEvents, SpectrogramP
     }
 
     return newMatrix
+  }
+
+  /** Set the volume for a specific channel. */
+  public setChannelVolume(index: number, volume: number) {
+    this.wavesurfer?.setChannelVolume(index, volume)
   }
 }
 
