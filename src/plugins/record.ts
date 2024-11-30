@@ -355,6 +355,11 @@ class RecordPlugin extends BasePlugin<RecordPluginEvents, RecordPluginOptions> {
       delete this.originalOptions
     }
   }
+
+  /** Set the volume for a specific channel. */
+  public setChannelVolume(index: number, volume: number) {
+    this.wavesurfer?.setChannelVolume(index, volume)
+  }
 }
 
 export default RecordPlugin

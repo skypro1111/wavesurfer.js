@@ -17,7 +17,7 @@ type WebAudioPlayerEvents = {
  */
 class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
   public audioContext: AudioContext
-  private gainNode: GainNode
+  private gainNodes: GainNode[] = []
   private bufferNode: AudioBufferSourceNode | null = null
   private playStartTime = 0
   private playedDuration = 0
@@ -34,8 +34,6 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
   constructor(audioContext = new AudioContext()) {
     super()
     this.audioContext = audioContext
-    this.gainNode = this.audioContext.createGain()
-    this.gainNode.connect(this.audioContext.destination)
   }
 
   /** Subscribe to an event. Returns an unsubscribe function. */
@@ -95,7 +93,14 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
       this.bufferNode.buffer = this.buffer
     }
     this.bufferNode.playbackRate.value = this._playbackRate
-    this.bufferNode.connect(this.gainNode)
+
+    this.gainNodes = []
+    for (let i = 0; i < (this.buffer?.numberOfChannels || 1); i++) {
+      const gainNode = this.audioContext.createGain()
+      gainNode.connect(this.audioContext.destination)
+      this.gainNodes.push(gainNode)
+      this.bufferNode.connect(gainNode, i, 0)
+    }
 
     let currentPos = this.playedDuration * this._playbackRate
     if (currentPos >= this.duration) {
@@ -186,10 +191,12 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
   }
 
   get volume() {
-    return this.gainNode.gain.value
+    return this.gainNodes[0]?.gain.value || 0
   }
   set volume(value) {
-    this.gainNode.gain.value = value
+    this.gainNodes.forEach((gainNode) => {
+      gainNode.gain.value = value
+    })
     this.emit('volumechange')
   }
 
@@ -201,9 +208,9 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
     this._muted = value
 
     if (this._muted) {
-      this.gainNode.disconnect()
+      this.gainNodes.forEach((gainNode) => gainNode.disconnect())
     } else {
-      this.gainNode.connect(this.audioContext.destination)
+      this.gainNodes.forEach((gainNode) => gainNode.connect(this.audioContext.destination))
     }
   }
 
@@ -212,8 +219,8 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
   }
 
   /** Get the GainNode used to play the audio. Can be used to attach filters. */
-  public getGainNode(): GainNode {
-    return this.gainNode
+  public getGainNode(): GainNode[] {
+    return this.gainNodes
   }
 
   /** Get decoded audio */
@@ -225,6 +232,14 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
       channels.push(this.buffer.getChannelData(i))
     }
     return channels
+  }
+
+  /** Set volume for a specific channel */
+  public setChannelVolume(index: number, volume: number) {
+    if (index >= 0 && index < this.gainNodes.length) {
+      this.gainNodes[index].gain.value = volume
+      this.emit('volumechange')
+    }
   }
 }
 
