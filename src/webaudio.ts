@@ -16,7 +16,7 @@ type WebAudioPlayerEvents = {
  * A Web Audio buffer player emulating the behavior of an HTML5 Audio element.
  */
 class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
-  private audioContext: AudioContext
+  public audioContext: AudioContext
   private gainNode: GainNode
   private bufferNode: AudioBufferSourceNode | null = null
   private playStartTime = 0
