@@ -226,6 +226,22 @@ class WebAudioPlayer extends EventEmitter<WebAudioPlayerEvents> {
     }
     return channels
   }
+
+  /** Mute a specific channel by index */
+  public muteChannel(index: number) {
+    if (!this.buffer) return
+
+    const channelData = this.buffer.getChannelData(index)
+    const gainNode = this.audioContext.createGain()
+    gainNode.gain.value = 0
+
+    const bufferSource = this.audioContext.createBufferSource()
+    bufferSource.buffer = this.buffer
+    bufferSource.connect(gainNode)
+    gainNode.connect(this.audioContext.destination)
+
+    bufferSource.start()
+  }
 }
 
 export default WebAudioPlayer
