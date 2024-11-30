@@ -1,6 +1,3 @@
-// React example
-// See https://github.com/katspaugh/wavesurfer-react
-
 import * as React from 'react'
 const { useMemo, useState, useCallback, useRef } = React
 import { createRoot } from 'react-dom/client'
@@ -16,7 +13,6 @@ const audioUrls = [
 
 const formatTime = (seconds) => [seconds / 60, seconds % 60].map((v) => `0${Math.floor(v)}`.slice(-2)).join(':')
 
-// A React component that will render wavesurfer
 const App = () => {
   const containerRef = useRef(null)
   const [urlIndex, setUrlIndex] = useState(0)
@@ -38,6 +34,10 @@ const App = () => {
     wavesurfer && wavesurfer.playPause()
   }, [wavesurfer])
 
+  const setVolume = useCallback((index, volume) => {
+    wavesurfer && wavesurfer.setChannelVolume(index, volume)
+  }, [wavesurfer])
+
   return (
     <>
       <div ref={containerRef} />
@@ -53,29 +53,14 @@ const App = () => {
           {isPlaying ? 'Pause' : 'Play'}
         </button>
       </div>
+
+      <div style={{ margin: '1em 0', display: 'flex', gap: '1em' }}>
+        <button onClick={() => setVolume(0, 0.5)}>Set Channel 0 Volume to 0.5</button>
+        <button onClick={() => setVolume(1, 0.5)}>Set Channel 1 Volume to 0.5</button>
+      </div>
     </>
   )
 }
 
-// Create a React root and render the app
 const root = createRoot(document.body)
 root.render(<App />)
-
-/*
-  <html>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script type="importmap">
-      {
-        "imports": {
-          "react": "https://esm.sh/react",
-          "react/jsx-runtime": "https://esm.sh/react/jsx-runtime",
-          "react-dom/client": "https://esm.sh/react-dom/client",
-          "wavesurfer.js": "../dist/wavesurfer.esm.js",
-          "wavesurfer.js/dist": "../dist",
-          "@wavesurfer/react": "https://unpkg.com/@wavesurfer/react"
-        }
-      }
-    </script>
-  </html>
-*/
